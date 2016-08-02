@@ -1,0 +1,27 @@
+{
+    # no collectd-web variable prefilled because the minus character
+    use esmith::ConfigDB;
+    use esmith::util;
+    my $confdb = esmith::ConfigDB->open;
+
+    my $alias = $bandwidthd{'alias'} || "";
+
+    # initialize alias if needed
+    if ($alias eq "") {
+        $alias = esmith::util::genRandomHash();
+        $confdb->set_prop('bandwidthd','alias',$alias);
+    }
+
+
+    $OUT = "
+#
+# bandwidthd configuration
+#
+Alias /$alias /usr/share/bandwidthd
+<Directory /usr/share/bandwidthd>
+  php_value short_open_tag on
+  Require local
+</Directory>
+
+";
+}

@@ -1,0 +1,17 @@
+{
+    # no bandwidthd variable prefilled because the minus character
+    use esmith::ConfigDB;
+    use esmith::util;
+    my $confdb = esmith::ConfigDB->open;
+    my $bandwidthd = $confdb->get('bandwidthd') or die "No bandwidthd db entry found\n";
+    my $alias = $bandwidthd->prop('alias') || "";
+
+    # initialize alias if needed
+    if ($alias eq "") {
+        $alias = esmith::util::genRandomHash();
+        $confdb->set_prop('bandwidthd','alias',$alias);
+    }
+
+    $OUT .= "ProxyPass /$alias http://localhost/$alias\n";
+    $OUT .= "ProxyPassReverse /$alias http://localhost/$alias\n";
+}
