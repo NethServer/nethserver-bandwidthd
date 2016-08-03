@@ -1,0 +1,98 @@
+#!/bin/bash
+
+#
+# Copyright (C) 2016 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+set -e
+
+db_file=/var/www/bandwidthd/stats.db
+
+if [[ ! -f "${db_file}" ]]; then
+    exit 0;
+fi
+
+# Time units
+few_minutes=$((60 * 10))
+one_hour=$((60 * 60))
+half_day=$((${one_hour} * 12))
+one_day=$((${half_day} * 2))
+one_week=$((${one_day} * 7))
+one_month=$((${one_day} * 35))
+
+# Time points
+now=$(sqlite3 ${db_file} "select max(last_connection) from sensors;")
+prev_days=$((${now} - ${one_day} - ${one_day}))
+prev_week=$((${now} - ${one_week}))
+prev_month=$((${now} - ${one_month}))
+
+for table in bd_{rx,tx,tx_total,rx_total}_log; do cat <<EOF | sqlite3 ${db_file}
+
+BEGIN;
+INSERT INTO ${table} (sensor_id, ip, timestamp, sample_duration, total, icmp, udp, tcp, ftp, http, p2p)
+    SELECT sensor_id, ip, 
+            timestamp - (timestamp % ${half_day}) as aggregate_timestamp, 
+            ${half_day} as aggregate_duration, 
+            sum(total), sum(icmp), sum(udp), sum(tcp), sum(ftp), sum(http), sum(p2p)
+
+        FROM ${table}
+        WHERE sample_duration < ${half_day} AND timestamp < ${prev_month}
+        GROUP BY sensor_id, ip, aggregate_timestamp, aggregate_duration
+;
+
+DELETE from ${table} where sample_duration < ${half_day} and timestamp < ${prev_month};
+COMMIT;
+
+BEGIN;
+INSERT INTO ${table} (sensor_id, ip, timestamp, sample_duration, total, icmp, udp, tcp, ftp, http, p2p)
+    SELECT sensor_id, ip,
+            timestamp - (timestamp % ${one_hour}) as aggregate_timestamp,
+            ${one_hour} as aggregate_duration,
+            sum(total), sum(icmp), sum(udp), sum(tcp), sum(ftp), sum(http), sum(p2p)
+
+        FROM ${table}
+        WHERE sample_duration < ${one_hour} AND timestamp < ${prev_week}
+        GROUP BY sensor_id, ip, aggregate_timestamp, aggregate_duration
+;
+
+DELETE FROM ${table} where sample_duration < ${one_hour} and timestamp < ${prev_week};
+COMMIT;
+
+BEGIN;
+INSERT INTO ${table} (sensor_id, ip, timestamp, sample_duration, total, icmp, udp, tcp, ftp, http, p2p)
+    SELECT sensor_id, ip,
+            timestamp - (timestamp % ${few_minutes}) as aggregate_timestamp,
+            ${few_minutes} as aggregate_duration,
+            sum(total), sum(icmp), sum(udp), sum(tcp), sum(ftp), sum(http), sum(p2p)
+
+        FROM ${table}
+        WHERE sample_duration < ${few_minutes} and timestamp < ${prev_days}
+        GROUP BY sensor_id, ip, aggregate_timestamp, aggregate_duration
+;
+
+DELETE FROM ${table} where sample_duration < ${few_minutes} and timestamp < ${prev_days};
+COMMIT;
+
+EOF
+
+done
+
+# Trim the file disk size:
+echo "VACUUM;" | sqlite3 ${db_file}
+
