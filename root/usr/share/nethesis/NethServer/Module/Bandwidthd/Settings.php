@@ -55,12 +55,18 @@ class Settings extends \Nethgui\Controller\AbstractController
     public function initialize()
     {
         parent::initialize();
-        $v = $this->createValidator()->collectionValidator($this->createValidator()->memberOf($this->listZones()))->notEmpty();
+        #$v = $this->createValidator()->collectionValidator($this->createValidator()->memberOf($this->listZones()))->notEmpty();
+        $v = $this->createValidator()->collectionValidator($this->createValidator()->memberOf($this->listZones()));
         $this->declareParameter('Subnets', $v, array('configuration', 'bandwidthd', 'Subnets',','));
     }
 
     protected function onParametersSaved($changes)
     {
+        if ( count($this->parameters['Subnets']) == 0 ) {
+            $this->getPlatform()->getDatabase('configuration')->setProp('bandwidthd', array('status' => 'disabled'));
+        } else {
+            $this->getPlatform()->getDatabase('configuration')->setProp('bandwidthd', array('status' => 'enabled'));
+        }
         $this->getPlatform()->signalEvent('nethserver-bandwidthd-save');
     }
 
