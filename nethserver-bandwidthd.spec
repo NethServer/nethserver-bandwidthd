@@ -8,7 +8,7 @@ BuildArch: noarch
 URL: https://github.com/NethServer/%{name}
 
 BuildRequires: nethserver-devtools
-
+Requires: php-pdo, php-gd, sqlite
 Requires: nethserver-httpd
 Requires: bandwidthd
 
@@ -28,13 +28,9 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{getmail_home}
 %{genfilelist} %{buildroot} > %{name}-%{version}-%{release}-filelist
 
-%clean
-rm -rf %{buildroot}
-
 %files -f %{name}-%{version}-%{release}-filelist
 %defattr(-,root,root)
 %dir %{_nseventsdir}/%{name}-update
 %doc COPYING
-
 
 %changelog
