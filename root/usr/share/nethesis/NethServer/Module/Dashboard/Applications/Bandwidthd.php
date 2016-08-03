@@ -35,7 +35,7 @@ class Bandwidthd extends \Nethgui\Module\AbstractModule implements \NethServer\M
 
     public function getInfo() 
     {
-        $cweb = $this->getPlatform()->getDatabase('configuration')->getKey('lightsquid');
+        $cweb = $this->getPlatform()->getDatabase('configuration')->getKey('bandwidthd');
         $host = explode(':',$_SERVER['HTTP_HOST']);
         return array(
             'url' => "/".$cweb['alias']
