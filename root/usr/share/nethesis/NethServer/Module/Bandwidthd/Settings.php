@@ -55,7 +55,8 @@ class Settings extends \Nethgui\Controller\AbstractController
     public function initialize()
     {
         parent::initialize();
-        $this->declareParameter('Subnets', Validate::ANYTHING, array('configuration', 'bandwidthd', 'Subnets'));
+        $v = $this->createValidator()->collectionValidator($this->createValidator()->memberOf($this->listZones()))->notEmpty();
+        $this->declareParameter('Subnets', $v, array('configuration', 'bandwidthd', 'Subnets',','));
     }
 
     protected function onParametersSaved($changes)
