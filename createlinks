@@ -44,7 +44,8 @@ event_services($event, 'httpd' => 'reload');
 
 $event = "nethserver-bandwidthd-save";
 
-templates2events("/etc/bandwidthd/bandwidthd.cfg",  $event);
+templates2events("/etc/bandwidthd.conf",  $event);
+event_services($event, 'bandwidthd' => 'restart');
 
 
 exit;
