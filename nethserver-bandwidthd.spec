@@ -9,7 +9,6 @@ URL: https://github.com/NethServer/%{name}
 
 BuildRequires: nethserver-devtools
 
-AutoReq: no
 Requires: nethserver-httpd
 Requires: bandwidthd
 
