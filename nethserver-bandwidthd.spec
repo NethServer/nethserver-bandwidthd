@@ -1,6 +1,6 @@
 Summary: NethServer bandwidth usage
 Name: nethserver-bandwidthd
-Version: 0.0.1
+Version: 1.0.0
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -34,3 +34,6 @@ mkdir -p %{buildroot}/%{getmail_home}
 %doc COPYING
 
 %changelog
+* Fri Aug 05 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.0.0-1
+- First release - NethServer/dev#5077
+
