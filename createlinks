@@ -30,12 +30,12 @@ my $event = "nethserver-bandwidthd-update";
 
 event_actions($event, qw(
               initialize-default-databases 00
-              nethserver-httpd-admin-asyncreload 99
 ));
 templates2events("/etc/httpd/conf.d/bandwidthd.conf",  $event);
 templates2events("/etc/httpd/admin-conf.d/bandwidthd.conf",  $event);
 templates2events("/etc/bandwidthd.conf",  $event);
 event_services($event, 'httpd' => 'reload');
+event_services($event, 'httpd-admin' => 'reload');
 
 
 #--------------------------------------------------
