@@ -1,6 +1,6 @@
 Summary: NethServer bandwidth usage
 Name: nethserver-bandwidthd
-Version: 1.0.0
+Version: 1.0.1
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -34,6 +34,9 @@ mkdir -p %{buildroot}/%{getmail_home}
 %doc COPYING
 
 %changelog
+* Wed Jan 11 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.0.1-1
+- httpd-admin: use KillMode=process - NethServer/dev#5190
+
 * Fri Aug 05 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.0.0-1
 - First release - NethServer/dev#5077
 
