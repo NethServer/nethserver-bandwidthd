@@ -25,7 +25,6 @@ perl createlinks
 %install
 rm -rf %{buildroot}
 (cd root   ; find . -depth -not -name '*.orig' -print  | cpio -dump %{buildroot})
-mkdir -p %{buildroot}/%{getmail_home}
 %{genfilelist} %{buildroot} > %{name}-%{version}-%{release}-filelist
 
 %files -f %{name}-%{version}-%{release}-filelist
